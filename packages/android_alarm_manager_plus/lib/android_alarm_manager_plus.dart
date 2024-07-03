@@ -361,6 +361,13 @@ class AndroidAlarmManager {
     return (r == null) ? false : r;
   }
 
+  static Future<bool> setTimeZone(String timeZone) async {
+    final r = await channel.invokeMethod<bool>('Alarm.setTimeZone', <dynamic>[
+      timeZone,
+    ]);
+    return (r == null) ? false : r;
+  }
+
   static void checkIfSerializable(Map<String, dynamic> params) {
     try {
       jsonEncode(params);

@@ -128,6 +128,12 @@ public class AndroidAlarmManagerPlugin implements FlutterPlugin, MethodCallHandl
           AlarmService.cancel(context, requestCode);
           result.success(true);
           break;
+        case "Alarm.setTimeZone":
+          // This message indicates that the Flutter app would like to set the time zone.
+          String timeZone = ((JSONArray) arguments).getString(0);
+          AlarmService.setTimeZone(context, timeZone);
+          result.success(true);
+          break;
         default:
           result.notImplemented();
           break;

@@ -355,6 +355,11 @@ public class AlarmService extends JobIntentService {
     }
   }
 
+  public static void setTimeZone(Context context, String timeZoneName) {
+    AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    manager.setTimeZone(timeZoneName);
+  }
+
   private static PendingIntent createShowPendingIntent(
       Context context, int requestCode, JSONObject params) {
     PackageManager packageManager = context.getPackageManager();
