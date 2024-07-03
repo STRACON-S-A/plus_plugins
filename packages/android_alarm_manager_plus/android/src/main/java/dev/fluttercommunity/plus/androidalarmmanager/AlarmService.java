@@ -28,8 +28,7 @@ import org.json.JSONObject;
 public class AlarmService extends JobIntentService {
   private static final String TAG = "AlarmService";
   private static final String PERSISTENT_ALARMS_SET_KEY = "persistent_alarm_ids";
-  protected static final String SHARED_PREFERENCES_KEY =
-      "dev.fluttercommunity.plus.android_alarm_manager_plugin";
+  protected static final String SHARED_PREFERENCES_KEY = "dev.fluttercommunity.plus.android_alarm_manager_plugin";
   private static final int JOB_ID = 1984; // Random job ID.
   private static final Object persistentAlarmsLock = new Object();
 
@@ -47,13 +46,15 @@ public class AlarmService extends JobIntentService {
   /**
    * Starts the background isolate for the {@link AlarmService}.
    *
-   * <p>Preconditions:
+   * <p>
+   * Preconditions:
    *
    * <ul>
-   *   <li>The given {@code callbackHandle} must correspond to a registered Dart callback. If the
-   *       handle does not resolve to a Dart callback then this method does nothing.
-   *   <li>A static {@link #pluginRegistrantCallback} must exist, otherwise a {@link
-   *       PluginRegistrantException} will be thrown.
+   * <li>The given {@code callbackHandle} must correspond to a registered Dart
+   * callback. If the
+   * handle does not resolve to a Dart callback then this method does nothing.
+   * <li>A static {@link #pluginRegistrantCallback} must exist, otherwise a {@link
+   * PluginRegistrantException} will be thrown.
    * </ul>
    */
   public static void startBackgroundIsolate(Context context, long callbackHandle) {
@@ -66,10 +67,13 @@ public class AlarmService extends JobIntentService {
   }
 
   /**
-   * Called once the Dart isolate ({@code flutterBackgroundExecutor}) has finished initializing.
+   * Called once the Dart isolate ({@code flutterBackgroundExecutor}) has finished
+   * initializing.
    *
-   * <p>Invoked by {@link AndroidAlarmManagerPlugin} when it receives the {@code
-   * AlarmService.initialized} message. Processes all alarm events that came in while the isolate
+   * <p>
+   * Invoked by {@link AndroidAlarmManagerPlugin} when it receives the {@code
+   * AlarmService.initialized} message. Processes all alarm events that came in
+   * while the isolate
    * was starting.
    */
   /* package */ static void onInitialized() {
@@ -85,8 +89,10 @@ public class AlarmService extends JobIntentService {
   }
 
   /**
-   * Sets the Dart callback handle for the Dart method that is responsible for initializing the
-   * background Dart isolate, preparing it to receive Dart callback tasks requests.
+   * Sets the Dart callback handle for the Dart method that is responsible for
+   * initializing the
+   * background Dart isolate, preparing it to receive Dart callback tasks
+   * requests.
    */
   public static void setCallbackDispatcher(Context context, long callbackHandle) {
     FlutterBackgroundExecutor.setCallbackDispatcher(context, callbackHandle);
@@ -122,13 +128,12 @@ public class AlarmService extends JobIntentService {
     Intent alarm = new Intent(context, AlarmBroadcastReceiver.class);
     alarm.putExtra("id", requestCode);
     alarm.putExtra("callbackHandle", callbackHandle);
-    PendingIntent pendingIntent =
-        PendingIntent.getBroadcast(
-            context,
-            requestCode,
-            alarm,
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-                | PendingIntent.FLAG_UPDATE_CURRENT);
+    PendingIntent pendingIntent = PendingIntent.getBroadcast(
+        context,
+        requestCode,
+        alarm,
+        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+            | PendingIntent.FLAG_UPDATE_CURRENT);
 
     // Use the appropriate clock.
     int clock = AlarmManager.RTC;
@@ -219,13 +224,12 @@ public class AlarmService extends JobIntentService {
 
     // Cancel the alarm with the system alarm service.
     Intent alarm = new Intent(context, AlarmBroadcastReceiver.class);
-    PendingIntent existingIntent =
-        PendingIntent.getBroadcast(
-            context,
-            requestCode,
-            alarm,
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-                | PendingIntent.FLAG_NO_CREATE);
+    PendingIntent existingIntent = PendingIntent.getBroadcast(
+        context,
+        requestCode,
+        alarm,
+        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+            | PendingIntent.FLAG_NO_CREATE);
     if (existingIntent == null) {
       Log.i(TAG, "cancel: broadcast receiver not found");
       return;
@@ -263,8 +267,7 @@ public class AlarmService extends JobIntentService {
     SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_KEY, 0);
 
     synchronized (persistentAlarmsLock) {
-      Set<String> persistentAlarms =
-          new HashSet<>(prefs.getStringSet(PERSISTENT_ALARMS_SET_KEY, new HashSet<>()));
+      Set<String> persistentAlarms = new HashSet<>(prefs.getStringSet(PERSISTENT_ALARMS_SET_KEY, new HashSet<>()));
       if (persistentAlarms.isEmpty()) {
         RebootBroadcastReceiver.enableRescheduleOnReboot(context);
       }
@@ -280,8 +283,7 @@ public class AlarmService extends JobIntentService {
   private static void clearPersistentAlarm(Context context, int requestCode) {
     SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_KEY, 0);
     synchronized (persistentAlarmsLock) {
-      Set<String> persistentAlarms =
-          new HashSet<>(prefs.getStringSet(PERSISTENT_ALARMS_SET_KEY, new HashSet<>()));
+      Set<String> persistentAlarms = new HashSet<>(prefs.getStringSet(PERSISTENT_ALARMS_SET_KEY, new HashSet<>()));
       if (!persistentAlarms.contains(Integer.toString(requestCode))) {
         return;
       }
@@ -341,6 +343,11 @@ public class AlarmService extends JobIntentService {
     }
   }
 
+  public static void setTimeZone(Context context, String timeZoneName) {
+    AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    manager.setTimeZone(timeZoneName);
+  }
+
   @Override
   public void onCreate() {
     super.onCreate();
@@ -354,14 +361,20 @@ public class AlarmService extends JobIntentService {
   /**
    * Executes a Dart callback, as specified within the incoming {@code intent}.
    *
-   * <p>Invoked by our {@link JobIntentService} superclass after a call to {@link
+   * <p>
+   * Invoked by our {@link JobIntentService} superclass after a call to {@link
    * JobIntentService#enqueueWork(Context, Class, int, Intent);}.
    *
-   * <p>If there are no pre-existing callback execution requests, other than the incoming {@code
+   * <p>
+   * If there are no pre-existing callback execution requests, other than the
+   * incoming {@code
    * intent}, then the desired Dart callback is invoked immediately.
    *
-   * <p>If there are any pre-existing callback requests that have yet to be executed, the incoming
-   * {@code intent} is added to the {@link #alarmQueue} to invoked later, after all pre-existing
+   * <p>
+   * If there are any pre-existing callback requests that have yet to be executed,
+   * the incoming
+   * {@code intent} is added to the {@link #alarmQueue} to invoked later, after
+   * all pre-existing
    * callbacks have been executed.
    */
   @Override

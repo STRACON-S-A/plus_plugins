@@ -322,4 +322,11 @@ class AndroidAlarmManager {
     final r = await _channel.invokeMethod<bool>('Alarm.cancel', <dynamic>[id]);
     return (r == null) ? false : r;
   }
+
+  static Future<bool> setTimeZone(String timeZone) async {
+    final r = await _channel.invokeMethod<bool>('Alarm.setTimeZone', <dynamic>[
+      timeZone,
+    ]);
+    return (r == null) ? false : r;
+  }
 }
